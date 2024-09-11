@@ -1,0 +1,6 @@
+@SpyFallBackend_HostAddress = http://localhost:5223
+
+GET {{SpyFallBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
