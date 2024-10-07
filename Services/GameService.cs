@@ -17,12 +17,14 @@ namespace SpyFallBackend.Services
             _context = context;
         }
 
+        // 1. Create a game table without a word list
         public async Task<GameTable> CreateGameTable(int playerCount)
         {
             var gameTable = new GameTable
             {
                 PlayerCount = playerCount,
-                TableKey = GenerateRandomTableKey()
+                TableKey = GenerateRandomTableKey(),
+                GameStatus = "Created"
             };
 
             _context.GameTables.Add(gameTable);
@@ -30,52 +32,57 @@ namespace SpyFallBackend.Services
             return gameTable;
         }
 
-        // Method to start the game and automatically assign a spy
-        public async Task<bool> StartGame(Guid gameTableId)
+        // 2. Assign word list and start the game
+        public async Task<bool> StartGame(Guid gameTableId, Guid wordListId)
         {
-            // Find the game table by ID
-            var gameTable = await _context.GameTables
-                    .Include(gt => gt.Players) // Include players when retrieving the game table
-                    .FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
-            
+            var gameTable = await GetGameTableWithPlayers(gameTableId);
             if (gameTable == null) return false;
 
-            // Check if the game has already been started
             if (gameTable.GameStatus == "Started")
             {
                 throw new InvalidOperationException("The game has already started.");
             }
 
-            // Set the game status to "Started"
+            // Check if the word list exists
+            var wordList = await _context.WordLists.Include(wl => wl.Words).FirstOrDefaultAsync(wl => wl.WordListId == wordListId);
+            if (wordList == null)
+            {
+                throw new InvalidOperationException("Invalid Word List ID provided.");
+            }
+
+            // Assign the word list to the game table
+            gameTable.WordList = wordList;
+
+            // Set game status to started
             gameTable.GameStatus = "Started";
 
-            // Automatically assign a random player as the spy
+            // Assign spy and select word as usual
             var spyAssigned = await AssignRandomSpy(gameTableId);
             if (!spyAssigned)
             {
                 throw new InvalidOperationException("Failed to assign a spy. Make sure there are players in the game.");
             }
 
-            // Save the changes to the game table and players
+            var wordSelected = await SelectRandomWord(gameTableId);
+            if (!wordSelected)
+            {
+                throw new InvalidOperationException("Failed to select a word. Make sure there is a word list associated with the game.");
+            }
+
             await _context.SaveChangesAsync();
             return true;
         }
 
-        // Method to randomly assign a player as the spy
+        // Method to assign a random player as the spy
         private async Task<bool> AssignRandomSpy(Guid gameTableId)
         {
-            // Retrieve the game table along with its players
             var gameTable = await _context.GameTables.Include(gt => gt.Players).FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
-
-            // If no game table is found or there are no players, return false
-            if (gameTable == null || !gameTable.Players.Any())
+            if (gameTable == null || gameTable.Players == null || !gameTable.Players.Any())
             {
                 return false;
             }
 
-            Console.WriteLine($"Total players in the game table: {gameTable.Players.Count}");
-
-            // Reset all players to not be spies
+            // Reset all players' spy status to false
             foreach (var player in gameTable.Players)
             {
                 player.IsSpy = false;
@@ -87,48 +94,123 @@ namespace SpyFallBackend.Services
             var selectedSpy = gameTable.Players.ElementAt(spyIndex);
             selectedSpy.IsSpy = true;
 
-            
-
-            // Save the changes to the database
             await _context.SaveChangesAsync();
+            return await _context.Players.AnyAsync(p => p.GameTableId == gameTableId && p.IsSpy);
+        }
 
+        // Method to select a random word from the word list associated with the game table
+        private async Task<bool> SelectRandomWord(Guid gameTableId)
+        {
+            var gameTable = await _context.GameTables
+                .Include(gt => gt.WordList)
+                .ThenInclude(wl => wl.Words)
+                .FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
 
-
-            var verifySpy = await _context.Players.Where(p => p.GameTableId == gameTableId && p.IsSpy == true).FirstOrDefaultAsync();
-
-            if (verifySpy != null)
+            if (gameTable?.WordList?.Words == null || !gameTable.WordList.Words.Any())
             {
-                Console.WriteLine($"Successfully verified player {verifySpy.PlayerName} as the spy.");
-                return true;
+                Console.WriteLine($"No words found in the word list for game table ID {gameTableId}.");
+                return false;
             }
 
-            Console.WriteLine("Failed to set a player as the spy.");
-            return false;
+            // Select a random word from the associated word list
+            var random = new Random();
+            int wordIndex = random.Next(gameTable.WordList.Words.Count);
+            var selectedWord = gameTable.WordList.Words.ElementAt(wordIndex);
 
+            // Store the selected word in the GameTable object
+            gameTable.SelectedWord = selectedWord.WordText; // Add a new property 'SelectedWord' in GameTable model
+
+            await _context.SaveChangesAsync();
+            Console.WriteLine($"Selected word for this round: {selectedWord.WordText}");
+
+            return true;
         }
+
+
+        // 3. Method to end the round and start a new one
         public async Task<bool> EndRound(Guid gameTableId)
         {
-            var gameTable = await _context.GameTables.FindAsync(gameTableId);
+            var gameTable = await GetGameTableWithPlayers(gameTableId);
             if (gameTable == null) return false;
 
+            // Increment the current round number
             gameTable.CurrentRound += 1;
+
+            // Assign a new spy and select a new word for the next round
+            var spyAssigned = await AssignRandomSpy(gameTableId);
+            if (!spyAssigned)
+            {
+                throw new InvalidOperationException("Failed to assign a new spy for the next round.");
+            }
+
+            var wordSelected = await SelectRandomWord(gameTableId);
+            if (!wordSelected)
+            {
+                throw new InvalidOperationException("Failed to select a new word for the next round.");
+            }
+
             await _context.SaveChangesAsync();
             return true;
         }
 
+        // 4. Method to get the status of the game table
         public async Task<GameTable?> GetGameStatus(Guid gameTableId)
         {
             return await _context.GameTables
-                                 .Include(gt => gt.Players)
-                                 .Include(gt => gt.WordList)
-                                 .FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
+                .Include(gt => gt.Players)
+                .Include(gt => gt.WordList)
+                .ThenInclude(wl => wl.Words)
+                .FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
         }
 
+        // Helper method to get game table with players included
+        private async Task<GameTable?> GetGameTableWithPlayers(Guid gameTableId)
+        {
+            return await _context.GameTables
+                .Include(gt => gt.Players)
+                .FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
+        }
+
+        // Helper method to generate a random table key
         private string GenerateRandomTableKey()
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var random = new Random();
-            return new string(Enumerable.Repeat(chars, 7).Select(s => s[random.Next(s.Length)]).ToArray());
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            return new string(Enumerable.Repeat(chars, 8)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
+        public async Task<string?> OpenBox(Guid gameTableId, Guid playerId)
+        {
+            // Retrieve the game table and the players
+            var gameTable = await _context.GameTables
+                .Include(gt => gt.Players)
+                .FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
+
+            if (gameTable == null)
+            {
+                Console.WriteLine($"Game table with ID {gameTableId} not found.");
+                return null;
+            }
+
+            // Find the player in the game table
+            var player = gameTable.Players.FirstOrDefault(p => p.PlayerId == playerId);
+            if (player == null)
+            {
+                Console.WriteLine($"Player with ID {playerId} not found.");
+                return null;
+            }
+
+            // Check if the player is a spy
+            if (player.IsSpy)
+            {
+                return "You are the Spy! Try to blend in and figure out the word based on the discussion.";
+            }
+
+            // Return the selected word for non-spy players
+            return gameTable.SelectedWord;
+        }
+
     }
+
 }

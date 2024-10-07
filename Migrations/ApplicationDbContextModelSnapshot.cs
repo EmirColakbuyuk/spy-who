@@ -42,6 +42,9 @@ namespace SpyFallBackend.Migrations
                     b.Property<int>("PlayerCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("SelectedWord")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("TableKey")
                         .IsRequired()
                         .HasMaxLength(10)

@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using SpyFallBackend.DTOs; // Import the DTOs namespace
+using SpyFallBackend.DTOs;
 using SpyFallBackend.Models;
 using SpyFallBackend.Services;
+using System;
+using System.Threading.Tasks;
 
 namespace SpyFallBackend.Controllers
 {
@@ -25,17 +27,19 @@ namespace SpyFallBackend.Controllers
                 return BadRequest(ModelState);
             }
 
-            // Ensure the GameTableId is validated in the service
-            var wordList = await _wordListService.CreateWordList(
-                wordListCreateDto.GameTableId, 
-                wordListCreateDto.Name, 
-                wordListCreateDto.Words);
-
-            return Ok(wordList);
+            try
+            {
+                // Create a new word list using the service
+                var wordList = await _wordListService.CreateWordList(wordListCreateDto.GameTableId, wordListCreateDto.Name, wordListCreateDto.Words);
+                return Ok(wordList); // Return the created word list object
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message); // Return bad request with the exception message if GameTableId is invalid
+            }
         }
 
-
-        // GET: api/WordList/Get
+        // GET: api/WordList/Get?wordListId={wordListId}
         [HttpGet("Get")]
         public async Task<ActionResult<WordList>> GetWordList([FromQuery] Guid wordListId)
         {

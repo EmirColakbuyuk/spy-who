@@ -20,7 +20,8 @@ namespace SpyFallBackend.Migrations
                     PlayerCount = table.Column<int>(type: "int", nullable: false),
                     CurrentRound = table.Column<int>(type: "int", nullable: false),
                     GameStatus = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SelectedWord = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {

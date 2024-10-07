@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SpyFallBackend.DTOs
 {
-    public class GameStartDto
+    public class OpenBoxDto
     {
         [Required]
         public Guid GameTableId { get; set; }
 
         [Required]
-        public Guid WordListId { get; set; }
+        public Guid PlayerId { get; set; }
     }
 }

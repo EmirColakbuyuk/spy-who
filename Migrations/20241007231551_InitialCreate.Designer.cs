@@ -12,7 +12,7 @@ using SpyFallBackend.Data;
 namespace SpyFallBackend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241007133325_InitialCreate")]
+    [Migration("20241007231551_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -44,6 +44,9 @@ namespace SpyFallBackend.Migrations
 
                     b.Property<int>("PlayerCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("SelectedWord")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TableKey")
                         .IsRequired()
