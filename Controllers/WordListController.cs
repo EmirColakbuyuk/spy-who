@@ -20,16 +20,20 @@ namespace SpyFallBackend.Controllers
         [HttpPost("Create")]
         public async Task<ActionResult<WordList>> CreateWordList([FromBody] WordListCreateDto wordListCreateDto)
         {
-            // Validate the incoming request using ModelState
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            // Create a new word list using the service and the values from the DTO
-            var wordList = await _wordListService.CreateWordList(wordListCreateDto.Name, wordListCreateDto.Words);
+            // Ensure the GameTableId is validated in the service
+            var wordList = await _wordListService.CreateWordList(
+                wordListCreateDto.GameTableId, 
+                wordListCreateDto.Name, 
+                wordListCreateDto.Words);
+
             return Ok(wordList);
         }
+
 
         // GET: api/WordList/Get
         [HttpGet("Get")]

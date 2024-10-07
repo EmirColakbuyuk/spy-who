@@ -14,21 +14,29 @@ namespace SpyFallBackend.Services
         }
 
         // Method to create a new word list with the specified name and list of words.
-        public async Task<WordList> CreateWordList(string name, List<string> words)
+        public async Task<WordList> CreateWordList(Guid gameTableId, string name, List<string> words)
         {
-            // Create a new WordList instance
+            // Check if the GameTableId exists in the database before proceeding
+            var gameTableExists = await _context.GameTables.AnyAsync(gt => gt.GameTableId == gameTableId);
+            if (!gameTableExists)
+            {
+                throw new InvalidOperationException("The specified GameTableId does not exist.");
+            }
+
+            // Create the new word list
             var wordList = new WordList
             {
+                GameTableId = gameTableId, // Associate with the existing GameTable
                 Name = name,
-                Words = words.Select(w => new Word { WordText = w }).ToList()
+                Words = words.Select(word => new Word { WordText = word }).ToList()
             };
 
-            // Add the word list to the context and save changes.
             _context.WordLists.Add(wordList);
             await _context.SaveChangesAsync();
 
             return wordList;
         }
+
 
         // Method to retrieve a word list by its ID.
         public async Task<WordList?> GetWordList(Guid wordListId)
