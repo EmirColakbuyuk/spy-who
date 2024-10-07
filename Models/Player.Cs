@@ -1,17 +1,24 @@
-using System.Text.Json.Serialization;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpyFallBackend.Models
 {
     public class Player
     {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public bool IsSpy { get; set; } = false;  // Is the player a spy
-        public int GameSessionId { get; set; }  // Foreign key to the GameSession
+        [Key]
+        public Guid PlayerId { get; set; } = Guid.NewGuid();
 
-        [JsonIgnore]  // Prevent cyclic reference by ignoring this during serialization
-        public GameSession GameSession { get; set; }
+        [ForeignKey("GameTable")]
+        public Guid GameTableId { get; set; }
+        public virtual GameTable? GameTable { get; set; }
 
-        public bool IsRevealed { get; set; } = false;  // Whether the player has revealed their role
+        [Required]
+        [MaxLength(50)]
+        public string? PlayerName { get; set; }
+
+        public bool IsSpy { get; set; } = false; // Indicates if the player is the spy
+
+        public bool BoxOpened { get; set; } = false; // Indicates if the player has opened their box
     }
 }

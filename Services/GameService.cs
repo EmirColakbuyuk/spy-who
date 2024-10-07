@@ -1,8 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using SpyFallBackend.Models;
+using Microsoft.EntityFrameworkCore;
 using SpyFallBackend.Data;
+using SpyFallBackend.Models;
 
 namespace SpyFallBackend.Services
 {
@@ -15,63 +13,57 @@ namespace SpyFallBackend.Services
             _context = context;
         }
 
-        // Create a new game session with players
-        public GameSession CreateGame(List<string> playerNames, string word)
+        // Method to create a new game table
+        public async Task<GameTable> CreateGameTable(int playerCount)
         {
-            if (playerNames.Count < 3)
+            var gameTable = new GameTable
             {
-                throw new Exception("At least 3 players are required.");
-            }
-
-            // Create the player objects
-            var players = playerNames.Select(name => new Player { Name = name }).ToList();
-
-            // Randomly assign one player to be the spy
-            var random = new Random();
-            var spyIndex = random.Next(players.Count);
-            players[spyIndex].IsSpy = true;
-
-            // Create the game session
-            var gameSession = new GameSession
-            {
-                Players = players,
-                Word = word,
-                IsActive = true
+                PlayerCount = playerCount,
+                TableKey = GenerateRandomTableKey()
             };
 
-            _context.GameSessions.Add(gameSession);
-            _context.SaveChanges();
-
-            return gameSession;
+            _context.GameTables.Add(gameTable);
+            await _context.SaveChangesAsync();
+            return gameTable;
         }
 
-        // Reveal the player's role (spy or word)
-        public string RevealRole(int gameId, int playerId)
+        // Method to start the game (Add this method)
+        public async Task<bool> StartGame(Guid gameTableId)
         {
-            var gameSession = _context.GameSessions
-                .FirstOrDefault(gs => gs.Id == gameId);
+            var gameTable = await _context.GameTables.FindAsync(gameTableId);
+            if (gameTable == null) return false;
 
-            if (gameSession == null)
-            {
-                throw new Exception("Game session not found.");
-            }
+            gameTable.GameStatus = "Started";
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
-            var player = gameSession.Players.FirstOrDefault(p => p.Id == playerId);
-            if (player == null)
-            {
-                throw new Exception("Player not found.");
-            }
+        // Method to end the current round (Add this method)
+        public async Task<bool> EndRound(Guid gameTableId)
+        {
+            var gameTable = await _context.GameTables.FindAsync(gameTableId);
+            if (gameTable == null) return false;
 
-            if (player.IsRevealed)
-            {
-                throw new Exception("Player has already revealed their role.");
-            }
+            gameTable.CurrentRound += 1;
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
-            // Mark the player as having revealed their role
-            player.IsRevealed = true;
-            _context.SaveChanges();
+        // Method to get the status of the game (Add this method)
+        public async Task<GameTable?> GetGameStatus(Guid gameTableId)
+        {
+            return await _context.GameTables
+                                 .Include(gt => gt.Players)
+                                 .Include(gt => gt.WordList)
+                                 .FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
+        }
 
-            return player.IsSpy ? "You are the spy!" : $"Your word is: {gameSession.Word}";
+        // Method to generate a random table key
+        private string GenerateRandomTableKey()
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, 7).Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

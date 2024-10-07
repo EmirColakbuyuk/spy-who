@@ -5,20 +5,36 @@ namespace SpyFallBackend.Data
 {
     public class ApplicationDbContext : DbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         {
         }
 
-        public DbSet<GameSession> GameSessions { get; set; }
+        // DbSet properties to manage each entity
+        public DbSet<GameTable> GameTables { get; set; }
+        public DbSet<WordList> WordLists { get; set; }
+        public DbSet<Word> Words { get; set; }
         public DbSet<Player> Players { get; set; }
 
+        // Configure the model relationships and table names
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<GameSession>()
-                .HasMany(gs => gs.Players)
-                .WithOne(p => p.GameSession)
-                .HasForeignKey(p => p.GameSessionId)
-                .OnDelete(DeleteBehavior.Cascade);  // Delete all players when session is deleted
+            // Configure GameTable relationships
+            modelBuilder.Entity<GameTable>()
+                .HasOne(gt => gt.WordList)
+                .WithOne(wl => wl.GameTable)
+                .HasForeignKey<WordList>(wl => wl.GameTableId);
+
+            modelBuilder.Entity<GameTable>()
+                .HasMany(gt => gt.Players)
+                .WithOne(p => p.GameTable)
+                .HasForeignKey(p => p.GameTableId);
+
+            // Configure WordList relationships
+            modelBuilder.Entity<WordList>()
+                .HasMany(wl => wl.Words)
+                .WithOne(w => w.WordList)
+                .HasForeignKey(w => w.WordListId);
         }
     }
 }

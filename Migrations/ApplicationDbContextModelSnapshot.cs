@@ -17,76 +17,156 @@ namespace SpyFallBackend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "7.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("SpyFallBackend.Models.GameSession", b =>
+            modelBuilder.Entity("SpyFallBackend.Models.GameTable", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("GameTableId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<int>("CurrentRound")
+                        .HasColumnType("int");
 
-                    b.Property<string>("Word")
+                    b.Property<string>("GameStatus")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("Id");
+                    b.Property<int>("PlayerCount")
+                        .HasColumnType("int");
 
-                    b.ToTable("GameSessions");
+                    b.Property<string>("TableKey")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("GameTableId");
+
+                    b.ToTable("GameTables");
                 });
 
             modelBuilder.Entity("SpyFallBackend.Models.Player", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("PlayerId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GameSessionId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsRevealed")
+                    b.Property<bool>("BoxOpened")
                         .HasColumnType("bit");
+
+                    b.Property<Guid>("GameTableId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsSpy")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("PlayerName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("Id");
+                    b.HasKey("PlayerId");
 
-                    b.HasIndex("GameSessionId");
+                    b.HasIndex("GameTableId");
 
                     b.ToTable("Players");
                 });
 
+            modelBuilder.Entity("SpyFallBackend.Models.Word", b =>
+                {
+                    b.Property<Guid>("WordId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("WordListId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("WordText")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("WordId");
+
+                    b.HasIndex("WordListId");
+
+                    b.ToTable("Words");
+                });
+
+            modelBuilder.Entity("SpyFallBackend.Models.WordList", b =>
+                {
+                    b.Property<Guid>("WordListId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("GameTableId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("WordListId");
+
+                    b.HasIndex("GameTableId")
+                        .IsUnique();
+
+                    b.ToTable("WordLists");
+                });
+
             modelBuilder.Entity("SpyFallBackend.Models.Player", b =>
                 {
-                    b.HasOne("SpyFallBackend.Models.GameSession", "GameSession")
+                    b.HasOne("SpyFallBackend.Models.GameTable", "GameTable")
                         .WithMany("Players")
-                        .HasForeignKey("GameSessionId")
+                        .HasForeignKey("GameTableId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("GameSession");
+                    b.Navigation("GameTable");
                 });
 
-            modelBuilder.Entity("SpyFallBackend.Models.GameSession", b =>
+            modelBuilder.Entity("SpyFallBackend.Models.Word", b =>
+                {
+                    b.HasOne("SpyFallBackend.Models.WordList", "WordList")
+                        .WithMany("Words")
+                        .HasForeignKey("WordListId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("WordList");
+                });
+
+            modelBuilder.Entity("SpyFallBackend.Models.WordList", b =>
+                {
+                    b.HasOne("SpyFallBackend.Models.GameTable", "GameTable")
+                        .WithOne("WordList")
+                        .HasForeignKey("SpyFallBackend.Models.WordList", "GameTableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("GameTable");
+                });
+
+            modelBuilder.Entity("SpyFallBackend.Models.GameTable", b =>
                 {
                     b.Navigation("Players");
+
+                    b.Navigation("WordList");
+                });
+
+            modelBuilder.Entity("SpyFallBackend.Models.WordList", b =>
+                {
+                    b.Navigation("Words");
                 });
 #pragma warning restore 612, 618
         }

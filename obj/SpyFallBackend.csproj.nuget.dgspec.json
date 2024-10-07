@@ -1,30 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "/Users/emircolakbuyuk/Documents/SpyFall/SpyFallBackend/SpyFallBackend.csproj": {}
+    "C:\\Users\\emirc\\OneDrive\\Desktop\\VsCode\\spy-who\\SpyFallBackend.csproj": {}
   },
   "projects": {
-    "/Users/emircolakbuyuk/Documents/SpyFall/SpyFallBackend/SpyFallBackend.csproj": {
+    "C:\\Users\\emirc\\OneDrive\\Desktop\\VsCode\\spy-who\\SpyFallBackend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/emircolakbuyuk/Documents/SpyFall/SpyFallBackend/SpyFallBackend.csproj",
+        "projectUniqueName": "C:\\Users\\emirc\\OneDrive\\Desktop\\VsCode\\spy-who\\SpyFallBackend.csproj",
         "projectName": "SpyFallBackend",
-        "projectPath": "/Users/emircolakbuyuk/Documents/SpyFall/SpyFallBackend/SpyFallBackend.csproj",
-        "packagesPath": "/Users/emircolakbuyuk/.nuget/packages/",
-        "outputPath": "/Users/emircolakbuyuk/Documents/SpyFall/SpyFallBackend/obj/",
+        "projectPath": "C:\\Users\\emirc\\OneDrive\\Desktop\\VsCode\\spy-who\\SpyFallBackend.csproj",
+        "packagesPath": "C:\\Users\\emirc\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\emirc\\OneDrive\\Desktop\\VsCode\\spy-who\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/emircolakbuyuk/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\emirc\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net8.0"
+          "net7.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\sdk\\7.0.302\\Sdks\\Microsoft.NET.Sdk.Web\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
+          "net7.0": {
+            "targetAlias": "net7.0",
             "projectReferences": {}
           }
         },
@@ -32,34 +35,29 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net7.0": {
+          "targetAlias": "net7.0",
           "dependencies": {
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[7.0.11, )"
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[7.0.11, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.8, )"
+              "version": "[7.0.11, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
-              "version": "[6.4.0, )"
+              "version": "[6.8.1, )"
             }
           },
           "imports": [
@@ -81,7 +79,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.401/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.302\\RuntimeIdentifierGraph.json"
         }
       }
     }
