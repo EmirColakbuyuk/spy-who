@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SpyFallBackend.Models
 {
@@ -11,7 +12,8 @@ namespace SpyFallBackend.Models
 
         [ForeignKey("GameTable")]
         public Guid GameTableId { get; set; }
-        public virtual GameTable? GameTable { get; set; }
+        [JsonIgnore]
+         public virtual GameTable? GameTable { get; set; }
 
         [Required]
         [MaxLength(50)]

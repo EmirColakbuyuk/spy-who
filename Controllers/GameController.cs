@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SpyFallBackend.DTOs; // Import the DTOs namespace
 using SpyFallBackend.Models;
 using SpyFallBackend.Services;
 
@@ -17,17 +18,27 @@ namespace SpyFallBackend.Controllers
 
         // POST: api/Game/Create
         [HttpPost("Create")]
-        public async Task<ActionResult<GameTable>> CreateGame(int playerCount)
+        public async Task<ActionResult<GameTable>> CreateGame([FromBody] GameCreateDto gameCreateDto)
         {
-            var gameTable = await _gameService.CreateGameTable(playerCount);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var gameTable = await _gameService.CreateGameTable(gameCreateDto.PlayerCount);
             return Ok(gameTable);
         }
 
         // POST: api/Game/Start
         [HttpPost("Start")]
-        public async Task<ActionResult> StartGame([FromQuery] Guid gameTableId)
+        public async Task<ActionResult> StartGame([FromBody] GameStartDto gameStartDto)
         {
-            var result = await _gameService.StartGame(gameTableId);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _gameService.StartGame(gameStartDto.GameTableId);
             if (!result)
             {
                 return BadRequest("Failed to start the game. Make sure the game table ID is correct.");
@@ -37,9 +48,14 @@ namespace SpyFallBackend.Controllers
 
         // POST: api/Game/EndRound
         [HttpPost("EndRound")]
-        public async Task<ActionResult> EndRound([FromQuery] Guid gameTableId)
+        public async Task<ActionResult> EndRound([FromBody] GameRoundDto gameRoundDto)
         {
-            var result = await _gameService.EndRound(gameTableId);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var result = await _gameService.EndRound(gameRoundDto.GameTableId);
             if (!result)
             {
                 return BadRequest("Failed to end the round. Make sure the game table ID is correct.");

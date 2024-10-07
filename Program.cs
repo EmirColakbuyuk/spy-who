@@ -5,44 +5,47 @@ using SpyFallBackend.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Register the controllers with dependency injection.
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+});
 
-// Register Swagger services for API documentation.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Register the GameService and any other services you plan to use.
-builder.Services.AddScoped<GameService>(); 
+// Register the services used in the application.
+builder.Services.AddScoped<GameService>();
 builder.Services.AddScoped<PlayerService>();
 builder.Services.AddScoped<WordListService>();
 
-
-// Register the ApplicationDbContext and configure the SQL Server connection.
+// Configure the database context with SQL Server.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
     sqlServerOptionsAction: sqlOptions =>
     {
-        // Enable retry on failure for transient errors.
         sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5, // Number of retries before failing
-            maxRetryDelay: TimeSpan.FromSeconds(10), // Delay between retries
-            errorNumbersToAdd: null); // Optional: Specify additional error numbers to retry on
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null);
     }));
 
 var app = builder.Build();
 
-// Enable Swagger only in development mode for security reasons.
+// Enable Swagger only in development mode.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "SpyFall API V1");
+        c.RoutePrefix = string.Empty; // Open Swagger UI at the app's root URL
+    });
 }
 
-// Middleware to use HTTPS redirection for security.
+// Enable HTTPS redirection to ensure secure communication.
 app.UseHttpsRedirection();
 
-// Middleware to manage request authorization.
+// Use authorization middleware.
 app.UseAuthorization();
 
 // Map controller routes.

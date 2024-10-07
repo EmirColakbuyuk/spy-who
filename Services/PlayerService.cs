@@ -1,5 +1,6 @@
 using SpyFallBackend.Data;
 using SpyFallBackend.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SpyFallBackend.Services
 {
@@ -12,24 +13,36 @@ namespace SpyFallBackend.Services
             _context = context;
         }
 
-        public async Task<Player> AddPlayer(Guid gameTableId, string playerName)
+        // Method to add a player to the specified game table.
+        public async Task<Player?> AddPlayer(Guid gameTableId, string playerName)
         {
+            // Check if the game table exists.
+            var gameTable = await _context.GameTables.FindAsync(gameTableId);
+            if (gameTable == null)
+            {
+                return null;
+            }
+
+            // Create a new player instance with the provided player name.
             var player = new Player
             {
                 GameTableId = gameTableId,
-                PlayerName = playerName
+                PlayerName = playerName,
+                IsSpy = false, // Default value for new players
+                BoxOpened = false
             };
 
+            // Add the player to the context and save changes.
             _context.Players.Add(player);
             await _context.SaveChangesAsync();
+
             return player;
         }
 
+        // Method to get the player's status by their ID.
         public async Task<Player?> GetPlayerStatus(Guid playerId)
         {
-            // Use FindAsync and return null if not found to handle nullable return
-            var player = await _context.Players.FindAsync(playerId);
-            return player; // Will return null if player is not found
+            return await _context.Players.FindAsync(playerId);
         }
     }
 }

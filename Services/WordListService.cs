@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using SpyFallBackend.Data;
 using SpyFallBackend.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SpyFallBackend.Services
 {
@@ -13,22 +13,26 @@ namespace SpyFallBackend.Services
             _context = context;
         }
 
-        public async Task<WordList> CreateWordList(List<string> words)
+        // Method to create a new word list with the specified name and list of words.
+        public async Task<WordList> CreateWordList(string name, List<string> words)
         {
-            // Create a new WordList and initialize the Words collection
+            // Create a new WordList instance
             var wordList = new WordList
             {
+                Name = name,
                 Words = words.Select(w => new Word { WordText = w }).ToList()
             };
 
+            // Add the word list to the context and save changes.
             _context.WordLists.Add(wordList);
             await _context.SaveChangesAsync();
+
             return wordList;
         }
 
+        // Method to retrieve a word list by its ID.
         public async Task<WordList?> GetWordList(Guid wordListId)
         {
-            // Use FirstOrDefaultAsync to handle potential null results
             return await _context.WordLists
                                  .Include(wl => wl.Words)
                                  .FirstOrDefaultAsync(wl => wl.WordListId == wordListId);

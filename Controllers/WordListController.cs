@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using SpyFallBackend.DTOs; // Import the DTOs namespace
 using SpyFallBackend.Models;
 using SpyFallBackend.Services;
 
@@ -17,9 +18,16 @@ namespace SpyFallBackend.Controllers
 
         // POST: api/WordList/Create
         [HttpPost("Create")]
-        public async Task<ActionResult<WordList>> CreateWordList([FromBody] List<string> words)
+        public async Task<ActionResult<WordList>> CreateWordList([FromBody] WordListCreateDto wordListCreateDto)
         {
-            var wordList = await _wordListService.CreateWordList(words);
+            // Validate the incoming request using ModelState
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Create a new word list using the service and the values from the DTO
+            var wordList = await _wordListService.CreateWordList(wordListCreateDto.Name, wordListCreateDto.Words);
             return Ok(wordList);
         }
 

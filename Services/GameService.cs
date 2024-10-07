@@ -1,6 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using SpyFallBackend.Data;
 using SpyFallBackend.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SpyFallBackend.Services
 {
@@ -13,7 +13,6 @@ namespace SpyFallBackend.Services
             _context = context;
         }
 
-        // Method to create a new game table
         public async Task<GameTable> CreateGameTable(int playerCount)
         {
             var gameTable = new GameTable
@@ -27,7 +26,6 @@ namespace SpyFallBackend.Services
             return gameTable;
         }
 
-        // Method to start the game (Add this method)
         public async Task<bool> StartGame(Guid gameTableId)
         {
             var gameTable = await _context.GameTables.FindAsync(gameTableId);
@@ -38,7 +36,6 @@ namespace SpyFallBackend.Services
             return true;
         }
 
-        // Method to end the current round (Add this method)
         public async Task<bool> EndRound(Guid gameTableId)
         {
             var gameTable = await _context.GameTables.FindAsync(gameTableId);
@@ -49,7 +46,6 @@ namespace SpyFallBackend.Services
             return true;
         }
 
-        // Method to get the status of the game (Add this method)
         public async Task<GameTable?> GetGameStatus(Guid gameTableId)
         {
             return await _context.GameTables
@@ -58,7 +54,6 @@ namespace SpyFallBackend.Services
                                  .FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
         }
 
-        // Method to generate a random table key
         private string GenerateRandomTableKey()
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
