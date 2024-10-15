@@ -29,6 +29,7 @@ namespace SpyFallBackend.Models
         public string? SelectedWord { get; set; }
 
         public virtual ICollection<Player> Players { get; set; } = new List<Player>();
+        public Guid? WordListId { get; set; }
         public virtual WordList? WordList { get; set; }
     }
 

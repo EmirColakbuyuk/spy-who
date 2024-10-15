@@ -30,12 +30,12 @@ namespace SpyFallBackend.Controllers
             try
             {
                 // Create a new word list using the service
-                var wordList = await _wordListService.CreateWordList(wordListCreateDto.GameTableId, wordListCreateDto.Name, wordListCreateDto.Words);
-                return Ok(wordList); // Return the created word list object
+                var wordList = await _wordListService.CreateWordList(wordListCreateDto.Name, wordListCreateDto.Words);
+                return Ok(wordList);
             }
-            catch (InvalidOperationException ex)
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message); // Return bad request with the exception message if GameTableId is invalid
+                return BadRequest(new { Message = "Failed to create word list.", Error = ex.Message });
             }
         }
 

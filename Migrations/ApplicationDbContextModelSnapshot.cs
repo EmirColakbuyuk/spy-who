@@ -17,7 +17,7 @@ namespace SpyFallBackend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.11")
+                .HasAnnotation("ProductVersion", "8.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -50,7 +50,12 @@ namespace SpyFallBackend.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
 
+                    b.Property<Guid?>("WordListId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("GameTableId");
+
+                    b.HasIndex("WordListId");
 
                     b.ToTable("GameTables");
                 });
@@ -112,19 +117,22 @@ namespace SpyFallBackend.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("GameTableId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Name")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("WordListId");
 
-                    b.HasIndex("GameTableId")
-                        .IsUnique();
-
                     b.ToTable("WordLists");
+                });
+
+            modelBuilder.Entity("SpyFallBackend.Models.GameTable", b =>
+                {
+                    b.HasOne("SpyFallBackend.Models.WordList", "WordList")
+                        .WithMany()
+                        .HasForeignKey("WordListId");
+
+                    b.Navigation("WordList");
                 });
 
             modelBuilder.Entity("SpyFallBackend.Models.Player", b =>
@@ -149,22 +157,9 @@ namespace SpyFallBackend.Migrations
                     b.Navigation("WordList");
                 });
 
-            modelBuilder.Entity("SpyFallBackend.Models.WordList", b =>
-                {
-                    b.HasOne("SpyFallBackend.Models.GameTable", "GameTable")
-                        .WithOne("WordList")
-                        .HasForeignKey("SpyFallBackend.Models.WordList", "GameTableId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("GameTable");
-                });
-
             modelBuilder.Entity("SpyFallBackend.Models.GameTable", b =>
                 {
                     b.Navigation("Players");
-
-                    b.Navigation("WordList");
                 });
 
             modelBuilder.Entity("SpyFallBackend.Models.WordList", b =>

@@ -68,9 +68,10 @@ C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\staticwebassets.
 C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\staticwebassets.build.json
 C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\staticwebassets.development.json
 C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\scopedcss\bundle\SpyFallBackend.styles.css
-C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\SpyFallBackend.csproj.CopyComplete
 C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\SpyFallBackend.dll
 C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\refint\SpyFallBackend.dll
 C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\SpyFallBackend.pdb
 C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\SpyFallBackend.genruntimeconfig.cache
 C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\ref\SpyFallBackend.dll
+C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\SpyFallBackend.sourcelink.json
+C:\Users\emirc\OneDrive\Desktop\VsCode\spy-who\obj\Debug\net7.0\SpyFallB.A79C16C3.Up2Date

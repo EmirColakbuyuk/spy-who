@@ -211,6 +211,32 @@ namespace SpyFallBackend.Services
             return gameTable.SelectedWord;
         }
 
+        public async Task<bool> EndGame(Guid gameTableId)
+        {
+            // Find the game table with the associated players
+            var gameTable = await _context.GameTables
+                .Include(gt => gt.Players) // Include the players so they can be deleted
+                .FirstOrDefaultAsync(gt => gt.GameTableId == gameTableId);
+
+            if (gameTable == null)
+            {
+                Console.WriteLine($"Game table with ID {gameTableId} not found.");
+                return false;
+            }
+
+            // Remove all associated players
+            _context.Players.RemoveRange(gameTable.Players);
+
+            // Remove the game table
+            _context.GameTables.Remove(gameTable);
+
+            // Save the changes to the database
+            await _context.SaveChangesAsync();
+
+            Console.WriteLine($"Game table with ID {gameTableId} and its players have been deleted.");
+            return true;
+        }
+
     }
 
 }

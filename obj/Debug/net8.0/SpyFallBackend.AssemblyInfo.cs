@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SpyFallBackend")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+489fa4483dcdcdd6247b85f114ce686fdab47b8e")]
 [assembly: System.Reflection.AssemblyProductAttribute("SpyFallBackend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SpyFallBackend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

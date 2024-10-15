@@ -22,8 +22,8 @@ namespace SpyFallBackend.Data
             // Configure GameTable relationships
             modelBuilder.Entity<GameTable>()
                 .HasOne(gt => gt.WordList)
-                .WithOne(wl => wl.GameTable)
-                .HasForeignKey<WordList>(wl => wl.GameTableId);
+                .WithMany() // No reverse navigation from WordList to GameTable
+                .HasForeignKey(gt => gt.WordListId); // GameTable has a nullable WordListId
 
             modelBuilder.Entity<GameTable>()
                 .HasMany(gt => gt.Players)
